@@ -28,10 +28,11 @@ def rule_based_category(description):
     return None
 
 def classify_transactions(df):
+    # ✅ FIXED: escape curly braces in JSON example
     prompt = PromptTemplate.from_template("""
     You are an AI Accountant.
     Transaction: "{description}", Amount ₹{amount}
-    Return JSON: {"category":"...", "confidence":0-1, "reason":"..."}
+    Return JSON: {{"category":"...", "confidence":0-1, "reason":"..."}}
     """)
 
     categories = []
@@ -42,7 +43,7 @@ def classify_transactions(df):
             categories.append({"category": cat, "confidence": 0.95, "reason": "Rule-based match"})
             continue
 
-        res = llm.predict(prompt.format(description=desc, amount=row["amount"]))
+        res = llm.invoke(prompt.format(description=desc, amount=row["amount"]))
         try:
             res_json = json.loads(res.split("{",1)[-1].replace("```","").strip())
         except:
